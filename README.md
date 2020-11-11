@@ -1,70 +1,74 @@
-# Getting Started with Create React App
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Rethink Assignment - URL Shortener
 
-## Available Scripts
+Implementation of basic URL shortener.
 
-In the project directory, you can run:
+# Backend
 
-### `npm start`
+## Nodejs using Express
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+1. [`nanoid`](https://github.com/ai/nanoid#readme) utility used for generating URL friendly unique identifier for the the short URLs.
+2. Returning existing short URL if a record for the corresponding long URL exist in the database.
+3. `mongodb` used as the database for persisting records.
+4. [`mongoose`](https://mongoosejs.com/docs/index.html) used for interacting with Mongodb.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
 
-### `npm test`
+## Steps to run : Backend
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Note:** Run backend first
 
-### `npm run build`
+**Configs:** Database connection settings needs to be upated in `backend/.env` file with the following keys
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Sample values shown below.
+```
+DB_HOST=cluster0-shard1.mongodb.net:27017,cluster0-shard2.mongodb.net:27017,cluster0-shard3.mongodb.net:27017
+DB_USER=abc
+DB_PASS=abc
+DB_COLLECTION=url_shortener
+KEY_LENGTH=6
+MAX_COLLISION_COUNT=2
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**KEY_LENGTH** : Length of the key to be used as unique identifier
+**MAX_COLLISION_COUNT** : Maximum number of retries in case of collisions with the same key length. If the number of collisions increase beyond this count, the `KEY_LENGTH` is increased by `1` temporarily to generate a longer unique key.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+1. `cd backend`
+2. `npm install`
+3. `npm start`
+4. Default port for backend is `8000`, which can again be overridden in `backend/.env` file.
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+---
+# Frontend
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## React
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+1. Basic interface to generate shortened URL links using a custom domain.
+2. Option to copy the generated short URL to the clipboard.
+3. Also included an interface to search for the long URL from a given short URL.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+## Steps to run
 
-## Learn More
+**Configs:** Server `host` and `port` settings are present in the `.env` file in the root folder.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Update the `.env` as per the settings of the backend server.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+Sample values shown below.
 
-### Code Splitting
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+REACT_APP_SERVER_HOST=http://localhost
+REACT_APP_SERVER_PORT=8000
 
-### Analyzing the Bundle Size
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+1. In the root folder - `npm install`
+2. `npm start`
 
-### Making a Progressive Web App
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+# General comments and assumptions
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+1. URL's not tied to a specific user or domain. Therefore, not shortening the same long URL again. If a record for a particular long URL exists, the corresponding short URL record is returned irrespective of the domain.
+2. `KEY_LENGTH` character short ID is generated using `nanoid` library. It uses 64 characters from the `[A-Za-z0-9_-]` character set to generate the identifier.
+3. Initially I'm using 6 character long keys. 6 character identifier using 64 chars gives approximately 64^6 ( ~68 Billion ) unique identifiers, which should be sufficient for this use case. If collisions occur, the length of the KEY to be generated is increased dynamically if the collision threshold is crossed. The `KEY_LENGTH` and `MAX_COLLISION_COUNT` variables can be updated in the `backend/.env` file to increase the default length of the key.
