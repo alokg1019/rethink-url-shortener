@@ -3,6 +3,14 @@
 
 Implementation of basic URL shortener.
 
+
+Shorten Long URL
+![url shortener](url_shorten.png)
+
+Search Long URL from short URL
+![find long url](find_long_url.png)
+
+
 # Backend
 
 ## Nodejs using Express
